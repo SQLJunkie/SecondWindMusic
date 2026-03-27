@@ -1,0 +1,5 @@
+# Cloudflare Pages redirects
+# Redirect old URLs from the original FrontPage site
+/examples.htm   /portfolio   301
+/contact.html   /contact     301
+/index.html     /            301

@@ -1,0 +1,47 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Message Sent" description="Your message has been received.">
+  <section class="success-page">
+    <div class="container">
+      <div class="success-card">
+        <div class="success-icon">✅</div>
+        <h1>Message Sent!</h1>
+        <p>
+          Thanks for reaching out. Greg will get back to you as soon as possible.
+        </p>
+        <p class="alt-contact">
+          In the meantime, you can also reach him directly at
+          <a href="tel:7048463873">704-846-3873</a> or
+          <a href="mailto:admin@secondwindmusic.com">admin@secondwindmusic.com</a>.
+        </p>
+        <a href="/" class="btn btn-primary">Back to Home</a>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .success-page {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    padding-block: 5rem;
+  }
+  .success-card {
+    max-width: 520px;
+    margin-inline: auto;
+    text-align: center;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 3rem 2.5rem;
+    box-shadow: var(--shadow);
+  }
+  .success-icon { font-size: 3rem; margin-bottom: 1rem; }
+  .success-card h1 { margin-bottom: 1rem; }
+  .success-card p  { color: var(--color-muted); margin-bottom: 1rem; }
+  .alt-contact     { font-size: 0.95rem; }
+  .btn             { margin-top: 0.75rem; }
+</style>

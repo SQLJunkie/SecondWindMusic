@@ -1,0 +1,245 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+// Replace the placeholder URLs below with real YouTube or Vimeo links when ready.
+// For YouTube: use the embed URL format — https://www.youtube.com/embed/VIDEO_ID
+// For Vimeo:   use the embed URL format — https://player.vimeo.com/video/VIDEO_ID
+const videos = [
+  {
+    title:       "The Naked Truth — Live Performance Showcase",
+    description: "A sample episode of The Naked Truth TV show, featuring local singer-songwriters at the Sylvia Theater in York, SC.",
+    embedUrl:    "", // TODO: paste YouTube/Vimeo embed URL here
+    placeholder: true,
+  },
+  {
+    title:       "Live Event Demo Reel",
+    description: "A highlight reel of live event video capture by Second Wind Music Productions.",
+    embedUrl:    "",
+    placeholder: true,
+  },
+  {
+    title:       "Studio Session",
+    description: "Behind-the-scenes look at a demo recording session.",
+    embedUrl:    "",
+    placeholder: true,
+  },
+];
+---
+
+<Layout
+  title="Media"
+  description="Video and audio samples from Second Wind Music Productions."
+>
+
+  <section class="page-hero">
+    <div class="container">
+      <h1>Media</h1>
+      <p>Video and audio samples from our productions.</p>
+    </div>
+  </section>
+
+  <!-- Placeholder notice -->
+  <section class="section section--alt">
+    <div class="container">
+      <div class="notice-card">
+        <span class="notice-icon">🎬</span>
+        <div>
+          <strong>Video links coming soon.</strong>
+          The slots below are ready to receive YouTube or Vimeo embeds — just
+          add the URLs when you're ready, or <a href="/contact">contact us</a> to
+          request a demo reel in the meantime.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Video cards -->
+  <section class="section">
+    <div class="container">
+      <h2>Featured Videos</h2>
+      <div class="video-grid">
+        {videos.map(video => (
+          <article class="video-card">
+            <div class="video-embed">
+              {video.placeholder ? (
+                <div class="video-placeholder">
+                  <div class="play-icon">▶</div>
+                  <p>Video coming soon</p>
+                </div>
+              ) : (
+                <iframe
+                  src={video.embedUrl}
+                  title={video.title}
+                  frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen
+                  loading="lazy"
+                ></iframe>
+              )}
+            </div>
+            <div class="video-info">
+              <h3>{video.title}</h3>
+              <p>{video.description}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Audio section placeholder -->
+  <section class="section section--alt">
+    <div class="container">
+      <h2>Audio Samples</h2>
+      <p class="section-intro">
+        Demo recordings and mastered tracks will be available here.
+        <a href="/contact">Contact us</a> to request an audio sample reel.
+      </p>
+      <div class="audio-placeholder">
+        <div class="audio-placeholder-inner">
+          <span style="font-size:2.5rem;">🎵</span>
+          <p><strong>Audio samples coming soon.</strong></p>
+          <p>We'll be adding demo recording and mastering samples here.</p>
+          <a href="/contact" class="btn btn-outline">Request a Sample</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Note about old .wmv files -->
+  <section class="section">
+    <div class="container">
+      <div class="legacy-note">
+        <h3>Looking for older recordings?</h3>
+        <p>
+          If you're looking for a video or recording from a past project that isn't
+          listed here, reach out directly — Greg keeps an archive and can share
+          files on request.
+        </p>
+        <a href="/contact" class="btn btn-primary">Get in Touch</a>
+      </div>
+    </div>
+  </section>
+
+</Layout>
+
+<style>
+  .page-hero {
+    background: linear-gradient(135deg, #1a0a0a 0%, #2d1010 100%);
+    color: #fff;
+    padding-block: 3.5rem;
+  }
+  .page-hero h1 { color: #fff; margin-bottom: 0.5rem; }
+  .page-hero p  { color: rgba(255,255,255,0.75); font-size: 1.1rem; }
+
+  /* --- Notice card --- */
+  .notice-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    background: #fff8e6;
+    border: 1.5px solid var(--color-gold);
+    border-radius: var(--radius);
+    padding: 1.1rem 1.25rem;
+    max-width: 720px;
+    font-size: 0.97rem;
+    color: var(--color-mid);
+  }
+  .notice-icon { font-size: 1.4rem; flex-shrink: 0; }
+
+  /* --- Video grid --- */
+  .video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+
+  .video-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+
+  .video-embed {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: #111;
+    overflow: hidden;
+  }
+  .video-embed iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  .video-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #1a0a0a;
+    color: #666;
+    gap: 0.5rem;
+  }
+  .play-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: 2px solid #444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    color: #555;
+    padding-left: 4px;
+  }
+  .video-placeholder p {
+    font-size: 0.85rem;
+    margin: 0;
+    color: #555;
+  }
+
+  .video-info {
+    padding: 1.1rem;
+  }
+  .video-info h3 { font-size: 1rem; margin-bottom: 0.4rem; }
+  .video-info p  { font-size: 0.88rem; color: var(--color-muted); margin: 0; }
+
+  /* --- Audio placeholder --- */
+  .section-intro {
+    color: var(--color-muted);
+    margin-bottom: 2rem;
+  }
+
+  .audio-placeholder {
+    border: 2px dashed var(--color-border);
+    border-radius: var(--radius);
+    padding: 3rem;
+    max-width: 560px;
+  }
+  .audio-placeholder-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .audio-placeholder p { color: var(--color-muted); margin: 0; }
+  .audio-placeholder .btn { margin-top: 0.75rem; }
+
+  /* --- Legacy note --- */
+  .legacy-note {
+    background: var(--color-surface);
+    border-left: 4px solid var(--color-brand);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 1.5rem 2rem;
+    max-width: 640px;
+  }
+  .legacy-note h3 { margin-bottom: 0.5rem; }
+  .legacy-note p  { color: var(--color-mid); margin-bottom: 1rem; }
+</style>

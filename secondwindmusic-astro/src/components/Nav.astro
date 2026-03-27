@@ -1,0 +1,142 @@
+---
+const navLinks = [
+  { href: '/',          label: 'Home'      },
+  { href: '/portfolio', label: 'Portfolio' },
+  { href: '/media',     label: 'Media'     },
+  { href: '/contact',   label: 'Contact'   },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="/" class="logo-link" aria-label="Second Wind Music Productions — Home">
+      <img src="/images/SWMLogo2Large.gif" alt="Second Wind Music Productions logo" width="240" height="80" />
+    </a>
+
+    <!-- Hamburger toggle (mobile) -->
+    <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="primary-nav">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav id="primary-nav" role="navigation" aria-label="Primary">
+      <ul class="nav-list">
+        {navLinks.map(link => (
+          <li>
+            <a
+              href={link.href}
+              class:list={['nav-link', { active: currentPath === link.href || (link.href !== '/' && currentPath.startsWith(link.href)) }]}
+            >
+              {link.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    background: var(--color-dark);
+    border-bottom: 3px solid var(--color-brand);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 0.75rem;
+  }
+
+  .logo-link img {
+    height: 56px;
+    width: auto;
+  }
+
+  .nav-list {
+    list-style: none;
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  .nav-link {
+    display: block;
+    padding: 0.45rem 1rem;
+    border-radius: var(--radius);
+    color: #ddd;
+    font-weight: 600;
+    font-size: 0.95rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: color 0.15s, background 0.15s;
+  }
+  .nav-link:hover,
+  .nav-link.active {
+    color: #fff;
+    background: var(--color-brand);
+    text-decoration: none;
+  }
+
+  /* Hamburger */
+  .nav-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+  }
+  .nav-toggle span {
+    display: block;
+    width: 26px;
+    height: 2px;
+    background: #ddd;
+    border-radius: 2px;
+    transition: transform 0.2s, opacity 0.2s;
+  }
+
+  @media (max-width: 640px) {
+    .nav-toggle {
+      display: flex;
+    }
+    #primary-nav {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--color-dark);
+      border-top: 1px solid var(--color-brand);
+      padding: 1rem;
+    }
+    #primary-nav.open {
+      display: block;
+    }
+    .nav-list {
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .nav-link {
+      padding: 0.6rem 1rem;
+    }
+  }
+</style>
+
+<script>
+  const toggle = document.querySelector('.nav-toggle') as HTMLButtonElement;
+  const nav    = document.getElementById('primary-nav') as HTMLElement;
+  toggle?.addEventListener('click', () => {
+    const open = nav.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', String(open));
+  });
+</script>

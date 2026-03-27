@@ -1,0 +1,231 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+// Artist images available from the old site.
+// Add more entries here as you build out the portfolio.
+const artists = [
+  { name: "Greg Baker",            img: "/images/FlyerPics/GregTNT.jpg",               bio: "Producer and founder of Second Wind Music Productions." },
+  { name: "Amy Speace",            img: "/images/FlyerPics/AmySpeace.jpg",              bio: "Singer-songwriter. Featured performer." },
+  { name: "Bruce Johnson",         img: "/images/FlyerPics/BruceJohnson.jpg",           bio: "Featured performer." },
+  { name: "JC Honeycutt",          img: "/images/FlyerPics/JCHoneycuttFramedSmall.jpg", bio: "Featured performer." },
+  { name: "Jenny & Bruce",         img: "/images/FlyerPics/JennyBruce.jpg",             bio: "Featured duo." },
+  { name: "Mataya",                img: "/images/FlyerPics/Mataya.jpg",                 bio: "Featured performer." },
+  { name: "Diggy",                 img: "/images/FlyerPics/Diggy.jpg",                  bio: "Featured performer." },
+];
+---
+
+<Layout
+  title="Portfolio"
+  description="Portfolio of Second Wind Music Productions — past work, artists, and events."
+>
+
+  <section class="page-hero">
+    <div class="container">
+      <h1>Portfolio</h1>
+      <p>A showcase of our work with performing artists and productions.</p>
+    </div>
+  </section>
+
+  <!-- Coming Soon Banner -->
+  <section class="coming-soon section section--alt">
+    <div class="container">
+      <div class="coming-soon-card">
+        <div class="coming-soon-icon">🎬</div>
+        <h2>Full Portfolio Coming Soon</h2>
+        <p>
+          We're in the process of building out this section with video
+          clips, audio samples, and full project showcases. Check back soon
+          — or <a href="/contact">contact us</a> to request a demo reel.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Artist Grid (placeholder cards from old site images) -->
+  <section class="section">
+    <div class="container">
+      <h2>Featured Artists</h2>
+      <p class="section-intro">
+        Second Wind Music Productions has had the pleasure of working with
+        talented local and regional artists. More project details coming soon.
+      </p>
+      <div class="artist-grid">
+        {artists.map(artist => (
+          <article class="artist-card">
+            <div class="artist-img-wrap">
+              <img src={artist.img} alt={artist.name} width="220" height="220" />
+            </div>
+            <div class="artist-info">
+              <h3>{artist.name}</h3>
+              <p>{artist.bio}</p>
+            </div>
+          </article>
+        ))}
+        <!-- Placeholder card to prompt adding more -->
+        <article class="artist-card artist-card--placeholder">
+          <div class="artist-img-wrap placeholder-img">
+            <span>+</span>
+          </div>
+          <div class="artist-info">
+            <h3>Your Project Here</h3>
+            <p><a href="/contact">Get in touch</a> to discuss your next production.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- TNT Collage -->
+  <section class="section section--alt tnt-section">
+    <div class="container tnt-inner">
+      <div class="tnt-text">
+        <h2>The Naked Truth TV Show</h2>
+        <p>
+          Produced by Greg Baker and Second Wind Music Productions,
+          <em>The Naked Truth</em> was a half-hour showcase of great songs
+          featuring the best local and regional singer-songwriters in the
+          Charlotte area.
+        </p>
+        <p>
+          Videotaped at the Sylvia Theater in York, SC on the first Friday
+          of each month, and aired the first Saturday of every month at 8:30 PM
+          on Time Warner Access Channel 21.
+        </p>
+        <a href="/contact" class="btn btn-primary">Inquire About Production</a>
+      </div>
+      <div class="tnt-images">
+        <img
+          src="/images/FlyerPics/TNTCollage.jpg"
+          alt="The Naked Truth TV Show collage"
+          width="388"
+          height="300"
+        />
+        <img
+          src="/images/FlyerPics/TNTAllStarsCollage.jpg"
+          alt="The Naked Truth All Stars collage"
+          width="388"
+          height="300"
+        />
+      </div>
+    </div>
+  </section>
+
+</Layout>
+
+<style>
+  .page-hero {
+    background: linear-gradient(135deg, #1a0a0a 0%, #2d1010 100%);
+    color: #fff;
+    padding-block: 3.5rem;
+  }
+  .page-hero h1 { color: #fff; margin-bottom: 0.5rem; }
+  .page-hero p  { color: rgba(255,255,255,0.75); font-size: 1.1rem; }
+
+  /* --- Coming Soon --- */
+  .coming-soon-card {
+    max-width: 600px;
+    margin-inline: auto;
+    text-align: center;
+    background: var(--color-surface);
+    border: 2px dashed var(--color-border);
+    border-radius: var(--radius);
+    padding: 3rem 2rem;
+  }
+
+  .coming-soon-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  .coming-soon-card h2 { margin-bottom: 1rem; }
+  .coming-soon-card p  { color: var(--color-muted); }
+
+  /* --- Artist grid --- */
+  .section-intro {
+    color: var(--color-muted);
+    font-size: 1.05rem;
+    max-width: 640px;
+    margin-bottom: 2.5rem;
+  }
+
+  .artist-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .artist-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+  .artist-card:hover {
+    box-shadow: var(--shadow);
+    transform: translateY(-3px);
+  }
+
+  .artist-img-wrap {
+    width: 100%;
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: #eee;
+  }
+  .artist-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+  }
+
+  .placeholder-img {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f0ebe6;
+    font-size: 3rem;
+    color: var(--color-border);
+  }
+
+  .artist-info {
+    padding: 1rem;
+  }
+  .artist-info h3 { font-size: 1rem; margin-bottom: 0.3rem; }
+  .artist-info p  { font-size: 0.88rem; color: var(--color-muted); margin: 0; }
+
+  /* --- TNT section --- */
+  .tnt-inner {
+    display: flex;
+    gap: 3rem;
+    align-items: flex-start;
+  }
+
+  .tnt-text {
+    flex: 1;
+  }
+  .tnt-text h2 { margin-bottom: 1rem; }
+  .tnt-text p  { color: var(--color-mid); }
+  .tnt-text .btn { margin-top: 1rem; }
+
+  .tnt-images {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    flex-shrink: 0;
+  }
+
+  .tnt-images img {
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    max-width: 300px;
+    width: 100%;
+    height: auto;
+  }
+
+  @media (max-width: 780px) {
+    .tnt-inner { flex-direction: column; }
+    .tnt-images { flex-direction: row; flex-wrap: wrap; }
+    .tnt-images img { max-width: 100%; }
+  }
+</style>
