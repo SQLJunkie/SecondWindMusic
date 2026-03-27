@@ -1,0 +1,423 @@
+#!/bin/bash
+#
+# sc_auth - SmartCard authorization setup script
+#
+# You can log in with a SmartCard if the authentication_authority field
+# of your user record contains an entry of the form
+#	;pubkeyhash;THEHASH
+# where THEHASH is the hex encoding of the SHA1 of the public key to be used.
+# (In keychains, this is the value in the Label attribute of keys, and of
+# the PublicKeyHash # attribute of certificate records.)
+#
+# This script allows you to get the hash from a SmartCard, and to create
+# the appropriate authority entry in a user account. It also lets you list
+# and delete them. It works as is for (local) NetInfo directories. If you
+# use LDAP or more exotic directory sources, you'll have to find your own
+# way to store the authentication_authority information, but the workflow
+# is the same. Feel free to hack.
+#
+# This script assumes the Tiger version of the /usr/bin/security command.
+# It will probably not work (without modification) with future versions.
+#
+# This script has been updated to use the dscl command in place of the
+# deprecated nicl command. To use the standard name in the header file:
+#	/System/Library/Frameworks/DirectoryService.framework/Headers/DirServicesConst.h
+# we have replaced "authentication_authority" with "AuthenticationAuthority"
+
+#set -x
+
+# general functions
+die() { echo "$*" 1>&2; exit 1; }
+note() { [ $verbose = yes ] && echo "$*" 1>&2; }
+
+usage() {
+cat <<EOU
+Usage:
+    $(basename $0) pair [-v] -u user -h hash # pair user with card identity via public key hash
+    $(basename $0) unpair [-v] [-u user] [-h hash] # unpair user from paired card identity or from all paired card(s) identities if public key hash was not specified
+    $(basename $0) pairing_ui [-v] [-f] [-s status|enable|disable] # enable, disable and force to display pairing dialog when card with unpaired identities is inserted
+    $(basename $0) identities # print public key hashes of paired and unpaired identities on inserted card(s)
+    $(basename $0) list [-v] [-u user] [-d domain] # list public key hashes that can authenticate this user
+    $(basename $0) changepin [-t tokenid] [-u] # change or unblock PIN of PIV card
+    $(basename $0) verifypin [-t tokenid] [-p PIN] # change or unblock PIN of PIV card
+    $(basename $0) enable_for_login [-c class-id] # enable token for login
+    $(basename $0) filevault [-o status|enable|disable] [-u user] [-h hash] # provides support for filevault login with a card
+    $(basename $0) create-ctk-identity -l label -k p-256|p-384|p-521|p-256-ne|p-384-ne [-t bio|none] [-N CN] [-E emailAddress] [-U OU] [-O O] [-L L] [-S ST] [-C C]
+    $(basename $0) delete-ctk-identity -h hash
+    $(basename $0) delete-all-ctk-identities
+    $(basename $0) list-ctk-identities [-t sha1|sha256|ssh] [-e hex|b64]
+    $(basename $0) import-ctk-identities -f fileName [-t bio|none] [-p password]
+    $(basename $0) export-ctk-identity -h hash -f fileName [-p password]
+    $(basename $0) create-ctk-csr -h hash -f fileName [-N CN] [-E emailAeddress] [-U OU] [-O O] [-L L] [-S ST] [-C C]
+    $(basename $0) import-ctk-certificate -f fileName
+Legacy SmartCard support:
+    $(basename $0) accept [-v] [-u user] [-d domain] [-k keyname] # by key on inserted card(s)
+    $(basename $0) accept [-v] [-u user] [-d domain] -h hash # by known public key hash
+    $(basename $0) remove [-v] [-u user] [-d domain] # remove all public keys for this user
+    $(basename $0) hash [-k keyname] # print hashes for keys on inserted card(s)
+EOU
+exit 2
+}
+
+# first argument is a command word
+[ -n "$1" ] || usage
+command=$1; shift
+
+# parse options
+case $command in
+  changepin) opts=t:s:u;;
+  verifypin) opts=t:s:p:;;
+  enable_for_login) opts=c:;;
+  filevault) opts=h:o:u:v;;
+  create-ctk-identity) opts=l:k:t:N:E:U:O:L:S:C:;;
+  delete-ctk-identity) opts=h:;;
+  list-ctk-identities) opts=t:e:;;
+  import-ctk-identities) opts=f:t:p:;;
+  export-ctk-identity) opts=h:f:p:;;
+  create-ctk-csr) opts=h:f:N:E:U:O:L:S:C:;;
+  import-ctk-certificate) opts=f:;;
+  *) opts=d:h:k:u:s:vf;;
+esac
+user=${USER:-$(logname)}
+keyname=
+hash=
+verbose=no
+pairing=
+domain="."
+force=no
+unblock=no
+slot=
+tokenid=
+classid=
+pin=
+operation=
+
+while getopts $opts arg; do
+  case $arg in
+  d)	domain="$OPTARG";;
+  e)    hashEncoding="$OPTARG";;
+  h)	hash="$OPTARG";;
+  k)	keyname="$OPTARG"; keyType="$OPTARG";;
+  u)	user="$OPTARG"; unblock=yes;;
+  s)	pairing="$OPTARG"; slot="$OPTARG";;
+  t)	tokenid="$OPTARG"; prot="$OPTARG"; hashType="$OPTARG";;
+  c)    classid="$OPTARG";;
+  p)    pin="$OPTARG"; pwd="$OPTARG";;
+  v)	verbose=yes;;
+  f)	force=yes;file="$OPTARG";;
+  o)    operation="$OPTARG";;
+  l)    label="$OPTARG";;
+  N)    CN="$OPTARG";;
+  E)    email="$OPTARG";;
+  U)    OU="$OPTARG";;
+  O)    O="$OPTARG";;
+  L)    L="$OPTARG";;
+  S)    ST="$OPTARG";;
+  C)    C="$OPTARG";;
+  esac
+done
+shift $(($OPTIND - 1))
+
+#
+# Using "security dump-keychain", extract the public key hash for a key
+# on a SmartCard and print it to stdout.
+# The optional argument is a regular expression to match against the
+# print name of the key.
+# Prints all matching keys; aborts if none are found.
+#
+hash_for_key() {
+  # hash_for_key [string in name]
+  string=${1:-'.*'}
+  HOME=/no/where /usr/bin/security dump-keychain |
+  awk -v RE="$string" '
+	/^    0x00000001/	{
+		if (matched = ($2 ~ RE)) { name=$0; sub("^.*<blob>=\"", "", name); sub("\"$", "", name); count++; }}
+	/^    0x00000006/	{
+		if (matched) { hash=$2; sub("<blob>=0x", "", hash); print hash, name; }}
+  '
+  HOME=/no/where /usr/bin/security dump-keychain |
+  awk -v RE="$string" '
+	/^    0x01000000/	{
+		if (matched = ($2 ~ RE)) { name=$0; sub("^.*<blob>=\"", "", name); sub("\"$", "", name); count++; }}
+	/^    0x06000000/	{
+		if (matched) { hash=$2; sub("<blob>=0x", "", hash); print hash, name; }}
+  '
+}
+
+
+get_hash() {
+  if [ -n "$hash" ]; then	# passed in
+	echo "$hash"
+  else						# find it
+	hash_for_key "$keyname" |
+	(
+	  read hash rest
+	  [ -n "$hash" ] || die "No matching keys found"
+	  [ $verbose = yes ] && note "Using key \"$rest\""
+	  echo $hash
+	)
+  fi
+}
+
+
+accept_user() {
+  local hash="$1"
+  [ -n "$hash" ] || die "No hash specified"
+  dscl "$domain" -append "/Users/$user" AuthenticationAuthority ";pubkeyhash;$hash"
+}
+
+remove_user() {
+  set -- $(dscl "$domain" -read "/Users/$user" AuthenticationAuthority)
+  shift		# skip authentication_authority: header
+  while [ -n "$1" ]; do
+	case "$1" in
+	\;pubkeyhash\;*)
+	  dscl "$domain" -delete "/Users/$user" AuthenticationAuthority "$1"
+	  [ $verbose = yes ] && note "Removed $1"
+	  ;;
+	esac
+	shift
+  done
+}
+
+check_root() {
+if [[ $EUID -ne 0 ]]; then
+   echo "This operation requires root privileges." 1>&2
+   exit 1
+fi
+}
+
+check_no_root() {
+if [[ $EUID -eq 0 ]]; then
+   echo "This operation must not be run with root privileges." 1>&2
+   exit 1
+fi
+}
+
+list_hashes() {
+  set -- $(dscl "$domain" -read "/Users/$user" AuthenticationAuthority)
+  shift		# skip authentication_authority: header
+  while [ -n "$1" ]; do
+	case "$1" in
+	\;pubkeyhash\;*)
+	  echo $1 | sed -e 's/;pubkeyhash;/Hash (legacy): /'
+	  ;;
+	esac
+	case "$1" in
+	\;tokenidentity\;*)
+	  echo $1 | sed -e 's/;tokenidentity;/Hash: /'
+	  ;;
+	esac
+	shift
+  done
+}
+
+identities() {
+  /System/Library/Frameworks/CryptoTokenKit.framework/ctkbind.app/Contents/MacOS/ctkbind -i
+}
+
+pair() {
+  check_root
+  if [ $verbose = yes ]; then
+    verb="-v"
+  fi
+  /System/Library/Frameworks/CryptoTokenKit.framework/ctkbind.app/Contents/MacOS/ctkbind -p -u "$user" -h "$hash" "$verb"
+}
+
+unpair() {
+  if [ $verbose = yes ]; then
+    verb="-v"
+  fi
+  if [ -z $hash ] ; then
+    set -- $(dscl "$domain" -read "/Users/$user" AuthenticationAuthority)
+    shift		# skip authentication_authority: header
+    while [ -n "$1" ]; do
+      case "$1" in
+      \;tokenidentity\;*)
+        /System/Library/Frameworks/CryptoTokenKit.framework/ctkbind.app/Contents/MacOS/ctkbind -r -u "$user" -h "${1/;tokenidentity;/}" "$verb"
+        ;;
+      esac
+      shift
+    done
+  else
+    /System/Library/Frameworks/CryptoTokenKit.framework/ctkbind.app/Contents/MacOS/ctkbind -r -u "$user" -h "$hash" "$verb"
+  fi
+}
+
+pairing_ui() {
+  check_no_root
+  if [ $verbose = yes ]; then
+    verb="-v"
+  fi
+  if [ $force = yes ]; then
+    force_cmd="-f"
+  fi
+  if [ $pairing ]; then
+    pairing_cmd="-s $pairing"
+  fi
+  /System/Library/Frameworks/CryptoTokenKit.framework/ctkbind.app/Contents/MacOS/ctkbind $pairing_cmd $verb $force_cmd
+}
+
+changepin() {
+  [ "$slot" ] && slot_cmd="-s $slot"
+  [ "$tokenid" ] && tokenid_cmd="-t $tokenid"
+  [ $unblock = yes ] && unblock_cmd="-u"
+  pivpin=/System/Library/Frameworks/CryptoTokenKit.framework/PlugIns/pivtoken.appex/Contents/pivpin
+  $pivpin $slot_cmd $tokenid_cmd $unblock_cmd
+}
+
+verifypin() {
+  [ "$slot" ] && slot_cmd="-s $slot"
+  [ "$tokenid" ] && tokenid_cmd="-t $tokenid"
+  [ "$pin" ] && pin_cmd="-p $pin"
+  pivpin=/System/Library/Frameworks/CryptoTokenKit.framework/PlugIns/pivtoken.appex/Contents/pivpin
+  $pivpin -v $slot_cmd $tokenid_cmd $pin_cmd
+}
+
+enable_for_login() {
+  check_root
+
+  if [[ -z $classid ]]; then
+    echo "The argument 'class-id' is required." 1>&2
+    exit 1
+  fi
+
+  plugin_path=$(pluginkit -mv -i $classid | cut -f 4-)
+
+  if [[ $plugin_path = */Contents/* ]]; then
+    plugin_path=${plugin_path%/Contents/*}
+  elif [[ $plugin_path = */PlugIns/* ]]; then
+    plugin_path=${plugin_path%/PlugIns/*}
+  else
+    echo "Token '$classid' not found. Please activate the app extension." 1>&2
+    exit 1
+  fi
+
+  /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -trusted "$plugin_path"
+  exit $?
+}
+
+filevault() {
+  command=$1;
+  case $operation in
+  enable) check_no_root;;
+  disable) check_root;;
+  status) ;;
+  *) echo "Unknown operation $operation" 1>&2; exit 1;
+esac
+  if [ $verbose = yes ]; then
+     verb="-v"
+  fi
+  if [[ -z $hash ]]; then
+     /System/Library/Frameworks/CryptoTokenKit.framework/ctkbind.app/Contents/MacOS/ctkbind  -o fv$operation -u "$user" "$verb"
+  else
+     /System/Library/Frameworks/CryptoTokenKit.framework/ctkbind.app/Contents/MacOS/ctkbind  -o fv$operation -u "$user" -h "$hash" "$verb"
+  fi
+  exit $?
+}
+
+ctkcard=/System/Library/Frameworks/CryptoTokenKit.framework/ctkcard
+
+missing-parameter () {
+  printf "usage:\n" && usage | grep "$1" && die
+}
+
+create-ctk-identity() {
+  { [ "$label" ] && label_opt="-l" && label_cmd="$label"; } || missing-parameter "create-ctk-identity"
+  { [ "$keyType" ] && keyType_cmd="-k $keyType"; } || missing-parameter "create-ctk-identity"
+  [ "$prot" ] && prot_cmd="-prot $prot"
+  [ "$CN" ] && CN_opt="-CN"; CN_cmd="$CN"
+  [ "$email" ] && email_opt="-E"; email_cmd="$email"
+  [ "$OU" ] && OU_opt="-OU"; OU_cmd="$OU"
+  [ "$O" ] && O_opt="-O"; O_cmd="$O"
+  [ "$L" ] && L_opt="-L"; L_cmd="$L"
+  [ "$ST" ] && ST_opt="-ST"; ST_cmd="$ST"
+  [ "$C" ] && C_opt="-C"; C_cmd="$C"
+
+  $ctkcard create-identity $label_opt "$label_cmd" $keyType_cmd $prot_cmd $CN_opt "$CN_cmd" $email_opt "$email_cmd" $OU_opt "$OU_cmd" $O_opt "$O_cmd" $L_opt "$L_cmd" $ST_opt "$ST_cmd" $C_opt "$C_cmd"
+  exit $?
+}
+
+delete-ctk-identity() {
+  { [ "$hash" ] && hash_cmd="-h $hash"; } || missing-parameter "delete-ctk-identity"
+
+  $ctkcard delete-identity $hash_cmd
+  exit $?
+}
+
+delete-all-ctk-identities() {
+  $ctkcard delete-all-identities
+  exit $?
+}
+
+list-ctk-identities() {
+  [ "$hashType" ] && hashType_cmd="-t $hashType"
+  [ "$hashEncoding" ] && hashEncoding_cmd="-e $hashEncoding"
+  
+  $ctkcard list-identities $hashType_cmd $hashEncoding_cmd
+  exit $?
+}
+
+import-ctk-identities() {
+  { [ "$file" ] && file_opt="-f" && file_cmd="$file"; } || missing-parameter "import-ctk-identities"
+  [ "$prot" ] && prot_cmd="-prot $prot"
+  [ "$pwd" ] && pwd_opt="-p"; pwd_cmd="$pwd"
+
+  $ctkcard import-identities $file_opt "$file_cmd" $prot_cmd $pwd_opt "$pwd_cmd"
+  exit $?
+}
+
+export-ctk-identity() {
+  { [ "$hash" ] && hash_cmd="-h $hash"; } || missing-parameter "export-ctk-identity"
+  { [ "$file" ] && file_opt="-f" && file_cmd="$file"; } || missing-parameter "export-ctk-identity"
+  [ "$pwd" ] && pwd_opt="-p"; pwd_cmd="$pwd"
+
+  $ctkcard export-identity $hash_cmd $file_opt "$file_cmd" $pwd_opt "$pwd_cmd"
+  exit $?
+}
+
+create-ctk-csr() {
+  { [ "$hash" ] && hash_cmd="-h $hash"; } || missing-parameter "create-ctk-csr"
+  { [ "$file" ] && file_opt="-f" && file_cmd="$file"; } || missing-parameter "create-ctk-csr"
+  [ "$CN" ] && CN_opt="-CN"; CN_cmd="$CN"
+  [ "$email" ] && email_opt="-E"; email_cmd="$email"
+  [ "$OU" ] && OU_opt="-OU"; OU_cmd="$OU"
+  [ "$O" ] && O_opt="-O"; O_cmd="$O"
+  [ "$L" ] && L_opt="-L"; L_cmd="$L"
+  [ "$ST" ] && ST_opt="-ST"; ST_cmd="$ST"
+  [ "$C" ] && C_opt="-C"; C_cmd="$C"
+
+  $ctkcard create-csr $hash_cmd $file_opt "$file_cmd" $CN_opt "$CN_cmd" $email_opt "$email_cmd" $OU_opt "$OU_cmd" $O_opt "$O_cmd" $L_opt "$L_cmd" $ST_opt "$ST_cmd" $C_opt "$C_cmd"
+  exit $?
+}
+
+import-ctk-certificate() {
+  { [ "$file" ] && file_opt="-f" && file_cmd="$file"; } || missing-parameter "import-ctk-certificate"
+
+  $ctkcard import-certificate $file_opt "$file_cmd"
+  exit $?
+}
+
+case "$command" in
+  hash)		hash_for_key "$keyname";;
+  accept)	accept_user $(get_hash);;
+  remove)	remove_user;;
+  list)		list_hashes;;
+  identities)identities;;
+  pair)		pair;;
+  unpair)	unpair;;
+  pairing_ui) pairing_ui;;
+  changepin)  changepin;;
+  verifypin)  verifypin;;
+  enable_for_login) enable_for_login;;
+  filevault)  filevault;;
+  create-ctk-identity)  create-ctk-identity;;
+  delete-ctk-identity) delete-ctk-identity;;
+  delete-all-ctk-identities) delete-all-ctk-identities;;
+  list-ctk-identities) list-ctk-identities;;
+  import-ctk-identities) import-ctk-identities;;
+  export-ctk-identity) export-ctk-identity;;
+  create-ctk-csr) create-ctk-csr;;
+  import-ctk-certificate) import-ctk-certificate;;
+  *) usage;;
+esac
