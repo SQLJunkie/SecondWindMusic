@@ -1,1 +1,0 @@
-{"version":"3.4.0","returnType":"Decision","expression":{"name":"skipSenderLookUpEngineResult","untriggeredValue":null,"logic":{"Contains":{"decision":{"Accept":{}},"inputs":[]}},"rulesValidity":{"Status":{"ruleActiveStatus":{"On":{}}}}}}

@@ -1,0 +1,334 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Home" description="Second Wind Music Productions — Multimedia productions for performing artists, weddings, and corporate events in the Charlotte, NC area.">
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container hero-inner">
+      <div class="hero-text">
+        <p class="hero-tagline">Second Wind Music Productions</p>
+        <h1>Professional Multimedia<br />Production Services</h1>
+        <p class="hero-sub">
+          <em>"Makin' Silk Purses out of Silk!"</em>
+        </p>
+        <p class="hero-desc">
+          Dedicated to producing the highest quality multimedia services
+          at the lowest cost — for performing artists, weddings, birthdays,
+          and corporate events in the greater Charlotte area.
+        </p>
+        <div class="hero-actions">
+          <a href="/contact" class="btn btn-primary">Get in Touch</a>
+          <a href="/portfolio" class="btn btn-outline">View Portfolio</a>
+        </div>
+      </div>
+      <div class="hero-image">
+        <img
+          src="/images/SWMPMontage2.gif"
+          alt="Second Wind Music Productions — artist montage"
+          width="200"
+          height="501"
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- Services -->
+  <section class="section section--alt" id="services">
+    <div class="container">
+      <h2 class="section-title">What We Do</h2>
+      <p class="section-intro">
+        From capturing a live performance to mastering a finished album,
+        Second Wind Music Productions handles every step of the process
+        with care and professionalism.
+      </p>
+      <div class="services-grid">
+        <article class="service-card">
+          <div class="service-icon">🎥</div>
+          <h3>Live Video Capture</h3>
+          <p>
+            Professional multi-camera recording of live performances,
+            concerts, and events. We bring the production quality your
+            music deserves.
+          </p>
+        </article>
+        <article class="service-card">
+          <div class="service-icon">🎙️</div>
+          <h3>Demo Recording</h3>
+          <p>
+            High-quality demo recordings to help performing artists
+            showcase their sound to booking agents, venues, and fans.
+          </p>
+        </article>
+        <article class="service-card">
+          <div class="service-icon">💿</div>
+          <h3>CD Mastering</h3>
+          <p>
+            Professional audio mastering to make your recordings sound
+            their best across all playback systems and platforms.
+          </p>
+        </article>
+        <article class="service-card">
+          <div class="service-icon">📀</div>
+          <h3>DVD Authoring</h3>
+          <p>
+            Full DVD authoring and production — menus, chapters, and
+            professional packaging for your live recordings.
+          </p>
+        </article>
+        <article class="service-card">
+          <div class="service-icon">🎨</div>
+          <h3>CD & DVD Label Design</h3>
+          <p>
+            Custom label and cover design that reflects your brand and
+            gets noticed on the shelf and online.
+          </p>
+        </article>
+        <article class="service-card">
+          <div class="service-icon">🌐</div>
+          <h3>Web Design & Hosting</h3>
+          <p>
+            Website design, maintenance, and hosting tailored for
+            performing artists and small businesses. Modern, fast, and
+            mobile-friendly.
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- About / Studio -->
+  <section class="section" id="about">
+    <div class="container about-inner">
+      <div class="about-image">
+        <img
+          src="/images/mystudio.jpg"
+          alt="Second Wind Music Productions studio"
+          width="420"
+          height="280"
+        />
+      </div>
+      <div class="about-text">
+        <h2>About Second Wind Music Productions</h2>
+        <p>
+          Second Wind Music Productions is owned and operated by
+          <strong>Greg Baker</strong>, a degreed engineer and lifelong
+          musician based in the Charlotte, NC area.
+        </p>
+        <p>
+          Greg's dual background in engineering and music means every
+          project gets both technical precision and artistic sensibility.
+          Whether you're a solo singer-songwriter or a full band,
+          Second Wind brings your vision to life.
+        </p>
+        <p>
+          Our primary focus is performing artists, but we're also
+          available for weddings, birthdays, and other family or
+          corporate events.
+        </p>
+        <a href="/contact" class="btn btn-primary">Work With Us</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Strip -->
+  <section class="cta-strip">
+    <div class="container">
+      <h2>Ready to start your project?</h2>
+      <p>Email Greg today to discuss your needs.</p>
+      <div class="cta-actions">
+        <a href="mailto:admin@secondwindmusic.com" class="btn btn-outline">✉️ Email Us</a>
+      </div>
+    </div>
+  </section>
+
+</Layout>
+
+<style>
+  /* --- Hero --- */
+  .hero {
+    background: linear-gradient(135deg, #1a4a72 0%, #235d8f 60%, #1a4a72 100%);
+    color: #fff;
+    padding-block: 5rem 4rem;
+  }
+
+  .hero-inner {
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+  }
+
+  .hero-text {
+    flex: 1;
+  }
+
+  .hero-tagline {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--color-gold);
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+  }
+
+  .hero h1 {
+    color: #fff;
+    margin-bottom: 0.5rem;
+  }
+
+  .hero-sub {
+    color: var(--color-gold);
+    font-size: 1.15rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .hero-desc {
+    color: #ccc;
+    font-size: 1.05rem;
+    max-width: 480px;
+    margin-bottom: 2rem;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .hero .btn-outline {
+    color: #fff;
+    border-color: rgba(255,255,255,0.5);
+  }
+  .hero .btn-outline:hover {
+    background: rgba(255,255,255,0.15);
+    border-color: #fff;
+  }
+
+  .hero-image {
+    flex-shrink: 0;
+  }
+  .hero-image img {
+    border-radius: var(--radius);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    max-height: 400px;
+    width: auto;
+  }
+
+  @media (max-width: 720px) {
+    .hero-inner {
+      flex-direction: column-reverse;
+      text-align: center;
+    }
+    .hero-desc { max-width: 100%; }
+    .hero-actions { justify-content: center; }
+    .hero-image img { max-height: 260px; }
+  }
+
+  /* --- Section headings --- */
+  .section-title {
+    margin-bottom: 0.5rem;
+  }
+  .section-intro {
+    color: var(--color-muted);
+    font-size: 1.05rem;
+    max-width: 640px;
+    margin-bottom: 2.5rem;
+  }
+
+  /* --- Services grid --- */
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .service-card {
+    background: var(--color-bg);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: var(--radius);
+    padding: 1.75rem;
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+  .service-card:hover {
+    box-shadow: var(--shadow);
+    transform: translateY(-3px);
+  }
+
+  .service-icon {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .service-card h3 {
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  }
+
+  .service-card p {
+    color: rgba(255,255,255,0.85);
+    font-size: 1.075rem;
+    margin: 0;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  }
+
+  /* --- About --- */
+  .about-inner {
+    display: flex;
+    align-items: flex-start;
+    gap: 3.5rem;
+  }
+
+  .about-image img {
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    width: 100%;
+    max-width: 420px;
+    object-fit: cover;
+  }
+
+  .about-text h2 { margin-bottom: 1rem; }
+  .about-text p  { color: var(--color-mid); }
+  .about-text .btn { margin-top: 0.75rem; }
+
+  @media (max-width: 780px) {
+    .about-inner { flex-direction: column; }
+    .about-image img { max-width: 100%; }
+  }
+
+  /* --- CTA Strip --- */
+  .cta-strip {
+    background: var(--color-brand);
+    color: #fff;
+    padding-block: 3.5rem;
+    text-align: center;
+  }
+  .cta-strip h2 { color: #fff; margin-bottom: 0.5rem; }
+  .cta-strip p  { color: rgba(255,255,255,0.85); margin-bottom: 1.75rem; }
+
+  .cta-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .cta-strip .btn-primary {
+    background: #fff;
+    color: var(--color-brand);
+    border-color: #fff;
+  }
+  .cta-strip .btn-primary:hover {
+    background: #f0e0e0;
+    border-color: #f0e0e0;
+  }
+  .cta-strip .btn-outline {
+    color: #fff;
+    border-color: rgba(255,255,255,0.6);
+  }
+  .cta-strip .btn-outline:hover {
+    background: rgba(255,255,255,0.15);
+    border-color: #fff;
+  }
+</style>

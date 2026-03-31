@@ -1,0 +1,247 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="Contact"
+  description="Contact Second Wind Music Productions — Greg Baker, Charlotte NC area multimedia production."
+>
+
+  <section class="page-hero">
+    <div class="container">
+      <h1>Contact Us</h1>
+      <p>Ready to start a project? We'd love to hear from you.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container contact-layout">
+
+      <!-- Contact Info -->
+      <div class="contact-info">
+        <h2>Get in Touch</h2>
+        <p>
+          Second Wind Music Productions is owned and operated by
+          <strong>Greg Baker</strong>, a degreed engineer and lifelong
+          musician. Whether you need live video capture, demo recording,
+          or a new website, Greg is ready to help.
+        </p>
+
+        <div class="info-cards">
+          <div class="info-card">
+            <div class="info-icon">✉️</div>
+            <div>
+              <h3>Email</h3>
+              <a href="mailto:admin@secondwindmusic.com">admin@secondwindmusic.com</a>
+            </div>
+          </div>
+          <div class="info-card">
+            <div class="info-icon">📍</div>
+            <div>
+              <h3>Service Area</h3>
+              <p>Charlotte, NC metro area and surrounding region</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="studio-photo">
+          <img
+            src="/images/mystudio.jpg"
+            alt="Second Wind Music Productions studio"
+            width="480"
+            height="320"
+          />
+        </div>
+      </div>
+
+      <!-- Contact Form -->
+      <div class="contact-form-wrap">
+        <h2>Send a Message</h2>
+        <p class="form-note">
+          Fill out the form below and Greg will get back to you as soon as possible.
+        </p>
+        <form
+          class="contact-form"
+          method="POST"
+          action="https://api.web3forms.com/submit"
+        >
+          <!-- Web3Forms access key -->
+          <input type="hidden" name="access_key" value="a2ad4c00-223e-482d-9966-e213b32012e1" />
+          <input type="hidden" name="subject" value="New message from SecondWindMusic.com" />
+          <input type="hidden" name="from_name" value="Second Wind Music Website" />
+          <!-- Redirect after successful submission -->
+          <input type="hidden" name="redirect" value="https://secondwindmusic.com/contact/success" />
+
+          <div class="form-group">
+            <label for="name">Your Name <span aria-hidden="true">*</span></label>
+            <input type="text" id="name" name="name" required placeholder="Jane Smith" />
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email Address <span aria-hidden="true">*</span></label>
+            <input type="email" id="email" name="email" required placeholder="jane@example.com" />
+          </div>
+
+          <div class="form-group">
+            <label for="phone">Phone (optional)</label>
+            <input type="tel" id="phone" name="phone" placeholder="704-555-1234" />
+          </div>
+
+          <div class="form-group">
+            <label for="service">Service of Interest</label>
+            <select id="service" name="service">
+              <option value="">— Select a service —</option>
+              <option>Live Video Capture</option>
+              <option>Demo Recording</option>
+              <option>CD Mastering</option>
+              <option>DVD Authoring</option>
+              <option>CD / DVD Label Design</option>
+              <option>Web Design &amp; Hosting</option>
+              <option>Other / Multiple Services</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="message">Message <span aria-hidden="true">*</span></label>
+            <textarea id="message" name="message" rows="5" required placeholder="Tell us about your project..."></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-submit">Send Message</button>
+        </form>
+      </div>
+
+    </div>
+  </section>
+
+</Layout>
+
+<style>
+  .page-hero {
+    background: linear-gradient(135deg, #1a4a72 0%, #235d8f 100%);
+    color: #fff;
+    padding-block: 3.5rem;
+  }
+  .page-hero h1 { color: #fff; margin-bottom: 0.5rem; }
+  .page-hero p  { color: rgba(255,255,255,0.75); font-size: 1.1rem; }
+
+  /* --- Layout --- */
+  .contact-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: start;
+  }
+
+  @media (max-width: 820px) {
+    .contact-layout { grid-template-columns: 1fr; gap: 3rem; }
+  }
+
+  /* --- Info side --- */
+  .contact-info h2,
+  .contact-form-wrap h2 {
+    margin-bottom: 1rem;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  }
+
+  .contact-info > p {
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    margin-bottom: 2rem;
+  }
+
+  .info-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+  }
+
+  .info-card {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 1.1rem 1.25rem;
+  }
+
+  .info-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .info-card h3 {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.7);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    margin-bottom: 0.2rem;
+  }
+
+  .info-card a,
+  .info-card p {
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    font-size: 1rem;
+    margin: 0;
+  }
+
+  .studio-photo img {
+    width: 100%;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-top: 0.5rem;
+  }
+
+  /* --- Form --- */
+  .form-note {
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+  }
+
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  }
+  label span { color: var(--color-brand); }
+
+  input, select, textarea {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    padding: 0.6rem 0.85rem;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius);
+    background: var(--color-surface);
+    color: var(--color-dark);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--color-brand);
+    box-shadow: 0 0 0 3px rgba(139,26,26,0.12);
+  }
+
+  textarea { resize: vertical; min-height: 120px; }
+
+  .btn-submit { align-self: flex-start; padding-inline: 2rem; }
+</style>

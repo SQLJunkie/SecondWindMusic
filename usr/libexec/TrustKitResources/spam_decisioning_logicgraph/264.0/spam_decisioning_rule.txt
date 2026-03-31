@@ -1,1 +1,0 @@
-{"version":"3.4.0","returnType":"Decision","expression":{"name":"spamEngineResult","untriggeredValue":null,"logic":{"Prioritized":{"logics":[{"Contains":{"decision":{"Accept":{}},"inputs":[]}},{"Contains":{"decision":{"Reject":{}},"inputs":[]}},{"Contains":{"decision":{"Review":{}},"inputs":[]}}],"inputs":[]}},"rulesValidity":{"Status":{"ruleActiveStatus":{"On":{}}}}}}

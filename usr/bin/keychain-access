@@ -1,3 +1,0 @@
-#!/bin/sh
-
-/usr/bin/open /System/Library/CoreServices/Applications/Keychain\ Access.app
