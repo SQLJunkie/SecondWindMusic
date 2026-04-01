@@ -1,0 +1,38 @@
+name       = "swm-portal-api"
+main       = "index.js"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# ── D1 Database ──────────────────────────────────────────────────────────────
+[[d1_databases]]
+binding      = "DB"
+database_name = "swm-portal"
+database_id  = "860bb9d7-7781-4266-ac7d-70ef98494a65"
+
+# ── KV Session Store ─────────────────────────────────────────────────────────
+[[kv_namespaces]]
+binding      = "SESSIONS"
+id           = "8bfde178c5794089bb2d1da98f413774"
+
+# ── Secrets (set via `wrangler secret put <NAME>`) ───────────────────────────
+# SESSION_SECRET     — random 32+ char string for signing session tokens
+# ADMIN_PASSWORD     — password for /api/admin/* endpoints
+# DROPBOX_TOKEN      — Dropbox API access token
+# GOOGLE_CLIENT_ID
+# GOOGLE_CLIENT_SECRET
+# MICROSOFT_CLIENT_ID
+# MICROSOFT_CLIENT_SECRET
+# APPLE_CLIENT_ID
+# APPLE_CLIENT_SECRET
+# APPLE_TEAM_ID
+# APPLE_KEY_ID
+# APPLE_PRIVATE_KEY  — PEM string (newlines replaced with \n)
+
+# ── Routes ───────────────────────────────────────────────────────────────────
+# Uncomment and update once custom domain is configured in Cloudflare Pages
+# routes = [
+#   { pattern = "secondwindmusic.com/api/*", zone_name = "secondwindmusic.com" }
+# ]
+
+[observability]
+enabled = true
